@@ -10,6 +10,14 @@ pipeline {
                 '''
             }
         }
+        stage('Update Poetry Lock File') {
+            steps {
+                sh '''
+                export PATH="$HOME/.local/bin:$PATH"
+                poetry lock --no-update
+                '''
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -28,3 +36,4 @@ pipeline {
         }
     }
 }
+
