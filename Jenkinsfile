@@ -23,6 +23,7 @@ pipeline {
             steps {
                 sh '''
                     export PATH="$HOME/.local/bin:$PATH"
+                    poetry lock --no-update
                     poetry install
                 '''
             }
