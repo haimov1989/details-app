@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "$HOME/.local/bin:$PATH"
+        PYTHONPATH = "${WORKSPACE}/src"
+    }
+
     stages {
         stage('Pre-Build') {
             steps {
@@ -26,6 +31,7 @@ pipeline {
             steps {
                 sh '''
                     export PATH="$HOME/.local/bin:$PATH"
+                    export PYTHONPATH="${WORKSPACE}/src"
                     poetry run pylint --disable=missing-docstring,invalid-name src/details/app.py
                 '''
             }
