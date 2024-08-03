@@ -1,100 +1,65 @@
-pipeline {
+
+pipeline{
     agent any
-    environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub') // Ensure Docker Hub credentials are set in Jenkins
-    }
-    stages {
-        stage('Spell Check') {
-            steps {
-                script {
-                    // Simulate spell check
-                    writeFile file: 'spellcheck.sh', text: '''
-                    #!/bin/bash
-                    echo "Running spell check..."
-                    # Add actual spellcheck commands here
-                    '''
-                    sh 'chmod +x spellcheck.sh'
-                    sh './spellcheck.sh'
-                }
+
+    stages{
+        stage('Pre-Build'){
+            steps{
+                echo 'Checking pre-requisites'
+                sleep 2
+                sh'''
+                    sudo apt-get update
+                    sudo apt-get install -y wget curl python3 python3-pip python3-pep8 python3-flask pipenv pylint pipx
+		    pipx install pyinstaller
+                '''
             }
         }
-        stage('Codespell') {
-            steps {
-                script {
-                    // Simulate codespell
-                    writeFile file: 'codespell.sh', text: '''
-                    #!/bin/bash
-                    echo "Running codespell..."
-                    # Add actual codespell commands here
-                    '''
-                    sh 'chmod +x codespell.sh'
-                    sh './codespell.sh'
-                }
+        stage('Linter'){
+            steps{
+                echo 'Static code analysis check'
+                sleep 2
+                sh '''
+	
+                    pylint --disable=missing-docstring,invalid-name app.py 
+                '''
+            } //error with artifact
+        }
+        stage('Build'){
+            steps{
+                echo 'Building the Project'
+                sleep 2
+                sh '''
+                    python3 app.py &
+		    chmod +x /home/jenkins/.local/pipx/venvs/pyinstaller
+		    /home/jenkins/.local/pipx/venvs/pyinstaller  app.py
+                '''
+            }// error with pyinstaller
+        }
+        stage('Test'){
+            steps{
+                echo 'Testing'
+                sh'''
+                    if curl localhost:8080 &> /dev/null;then
+                        echo 'post test: success'
+                    else
+                        echo 'post test: fail'
+                        exit 1
+                    fi
+                    if curl localhost:8080/jenkins &> /dev/null;then
+                        echo 'post test with variable: success'
+                    else
+                        echo 'post test with variable: fail'
+                        exit 1
+                    fi
+                '''
             }
         }
-        stage('Shellcheck') {
-            steps {
-                script {
-                    // Simulate shellcheck
-                    writeFile file: 'shellcheck.sh', text: '''
-                    #!/bin/bash
-                    echo "Running shellcheck..."
-                    # Add actual shellcheck commands here
-                    '''
-                    sh 'chmod +x shellcheck.sh'
-                    sh './shellcheck.sh'
-                }
-            }
-        }
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Simulate tests
-                    writeFile file: 'tests/test_sample.py', text: '''
-                    def test_sample():
-                        assert 1 + 1 == 2
-                    '''
-                    writeFile file: 'requirements.txt', text: '''
-                    pytest
-                    '''
-                    sh 'pip install -r requirements.txt'
-                    sh 'pytest tests/'
-                }
-            }
-        }
-        stage('Build Container') {
-            steps {
-                script {
-                    // Create Dockerfile
-                    writeFile file: 'Dockerfile', text: '''
-                    FROM python:3.8-slim
-                    COPY . /app
-                    WORKDIR /app
-                    RUN pip install -r requirements.txt
-                    CMD ["python", "app.py"]
-                    '''
-                    // Simulate building the container
-                    sh 'docker build -t my-app .'
-                }
-            }
-        }
-        stage('Save to Docker Hub') {
-            steps {
-                script {
-                    // Log in to Docker Hub and push the image
-                    sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
-                    sh 'docker tag my-app:latest my-app:latest'
-                    sh 'docker push my-app:latest'
-                }
-            }
-        }
-    }
-    post {
-        always {
-            script {
-                // Clean up
-                sh 'docker rmi my-app:latest'
-            }
+        stage('Archive'){
+            steps{
+                echo 'Archiving the artifact'
+                sleep 2
+                archiveArtifacts artifacts: 'dist', onlyIfSuccessful: true
+            } // error with what to artifact
         }
     }
 }
