@@ -9,7 +9,7 @@ pipeline{
                 sleep 2
                 sh'''
                     sudo apt-get update
-                    sudo apt-get install -y wget curl python3 python3-pip python3-pep8 python3-flask pipenv pylint pipx flask_sqlalchemy
+                    sudo apt-get install -y wget curl python3 python3-pip python3-pep8 python3-flask pipenv pylint pipx
 		            pipx install pyinstaller
                 '''
             }
