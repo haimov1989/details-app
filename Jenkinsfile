@@ -20,7 +20,7 @@ pipeline{
                 sleep 2
                 sh '''
 	
-                    pylint --disable=missing-docstring,invalid-name app.py 
+                    pylint --disable=missing-docstring,invalid-name ./src/app.py 
                 '''
             } //error with artifact
         }
