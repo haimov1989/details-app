@@ -19,8 +19,7 @@ pipeline{
                 echo 'Static code analysis check'
                 sleep 2
                 sh '''
-	
-                    pylint --disable=missing-docstring,invalid-name src/details/app.py 
+	                pylint --disable=missing-docstring,invalid-name src/details/app.py
                 '''
             } //error with artifact
         }
