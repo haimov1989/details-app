@@ -1,64 +1,74 @@
 pipeline {
     agent any
-
-    environment {
-        PATH = "$HOME/.local/bin:$PATH"
-    }
-
     stages {
-        stage('Install Poetry') {
+        stage('Pre-Build Setup') {
             steps {
                 sh '''
-                curl -sSL https://install.python-poetry.org | python3 -
+                    echo "Installing necessary tools..."
+                    sudo apt-get update
+                    sudo apt-get install -y aspell
+                    sudo apt-get install -y shellcheck
+                    pip install poetry codespell pytest
                 '''
             }
         }
-        stage('Update Poetry Lock File') {
+        stage('Spellcheck') {
             steps {
                 sh '''
-                poetry lock --no-update
+                    echo "Running aspell spellcheck..."
+                    # Run aspell on all .txt files in the repository
+                    for file in $(find . -name "README.md"); do
+                        aspell check "$file"
+                    done
                 '''
             }
         }
-        stage('Install Dependencies') {
+        stage('Codespell') {
             steps {
                 sh '''
-                poetry install
+                    echo "Running codespell..."
+                    # Run codespell
+                    codespell .
                 '''
             }
         }
-        stage('Run Spellcheck') {
+        stage('Shellcheck') {
             steps {
                 sh '''
-                poetry run codespell .
+                    echo "Running shellcheck..."
+                    # Run shellcheck on all shell scripts
+                    find . -name "*.sh" -exec shellcheck {} \;
                 '''
             }
         }
-        stage('Run Shellcheck') {
+        stage('Tests') {
             steps {
                 sh '''
-                echo "Running shellcheck..."
-                find . -name "*.sh" -exec shellcheck {} \;
+                    echo "Running tests..."
+                    # Install dependencies
+                    poetry install
+                    # Run pytest
+                    poetry run pytest
                 '''
             }
         }
-        stage('Run Tests') {
+        stage('Build') {
             steps {
                 sh '''
-                poetry run pytest .
+                    echo "Building container..."
+                    # Build Docker image
+                    docker build -t your-dockerhub-username/your-image-name:tag .
                 '''
             }
         }
-        stage('Build Docker Image') {
+        stage('Push to Docker Hub') {
             steps {
-                sh 'docker build -t yourdockerhubusername/yourimage:latest .'
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                    sh 'echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin'
-                    sh 'docker push yourdockerhubusername/yourimage:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh '''
+                        echo "Pushing image to Docker Hub..."
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        docker push your-dockerhub-username/your-image-name:tag
+                    '''
                 }
             }
         }
