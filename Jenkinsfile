@@ -26,7 +26,7 @@ pipeline {
         stage('Shellcheck') {
             steps {
                 sh '''
-                export PATH="${POETRY_HOME}/bin/${PATH}"
+                export PATH="${POETRY_HOME}/bin:${PATH}"
                 poetry run shellcheck $(find . -path ./.poetry -prune -o -name "*.sh" -print)
                 '''
             }
@@ -34,7 +34,7 @@ pipeline {
         stage('Tests') {
             steps {
                 sh '''
-                export PATH="${POETRY_HOME}/bin/${PATH}"
+                export PATH="${POETRY_HOME}/bin:${PATH}"
                 poetry run pytest
                 '''
             }
@@ -42,7 +42,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                export PATH="${POETRY_HOME}/bin/${PATH}"
+                export PATH="${POETRY_HOME}/bin:${PATH}"
                 docker build -t your_image:latest .
                 docker push your_image:latest
                 '''
