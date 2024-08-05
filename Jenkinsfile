@@ -10,6 +10,7 @@ pipeline {
                 sh '''
                 curl -sSL https://install.python-poetry.org | python3 -
                 export PATH="${POETRY_HOME}/bin:${PATH}"
+                poetry lock --no-update
                 poetry install
                 '''
             }
