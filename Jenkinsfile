@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh '''
                 export PATH="${POETRY_HOME}/bin:${PATH}"
-                poetry run codespell $(find . -name "*.py" -o -name "*.txt" -o -name "*.md")
+                poetry run codespell $(find . -path ./.poetry -prune -o -name "*.py" -o -name "*.txt" -o -name "*.md" -print)
                 '''
             }
         }
@@ -27,14 +27,14 @@ pipeline {
             steps {
                 sh '''
                 export PATH="${POETRY_HOME}/bin:${PATH}"
-                poetry run shellcheck $(find . -name "*.sh")
+                poetry run shellcheck $(find . -path ./.poetry -prune -o -name "*.sh" -print)
                 '''
             }
         }
         stage('Tests') {
             steps {
                 sh '''
-                export PATH="${POETRY_HOME}/bin:${PATH}"
+                export PATH="${POETRY_HOME}/bin/${PATH}"
                 poetry run pytest
                 '''
             }
