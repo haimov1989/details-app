@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh '''
                 export PATH="${POETRY_HOME}/bin:${PATH}"
-                poetry run spellcheck $(find . -name "*.py" -o -name "*.txt" -o -name "*.md")
+                poetry run python -m spellchecker -f $(find . -name "*.py" -o -name "*.txt" -o -name "*.md")
                 '''
             }
         }

@@ -14,9 +14,10 @@ flask-wtf = "^1.2.1"
 flask = "^3.0.3"
 codespell = "^2.0.0"
 pytest = "^6.2.4"
-spellchecker = "^0.4.0"   # Add spellchecker
-shellcheck-py = "^0.8.0.2" # Add shellcheck-py
+pyspellchecker = "^0.7.0"   # Add spellchecker dependency
+shellcheck-py = "^0.8.0.2" # Add shellcheck dependency
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
