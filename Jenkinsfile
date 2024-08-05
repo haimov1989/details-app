@@ -26,7 +26,7 @@ pipeline {
         stage('Shellcheck') {
             steps {
                 sh '''
-                export PATH="${POETRY_HOME}/bin:${PATH}"
+                export PATH="${POETRY_HOME}/bin/${PATH}"
                 poetry run shellcheck $(find . -path ./.poetry -prune -o -name "*.sh" -print)
                 '''
             }

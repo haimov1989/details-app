@@ -12,7 +12,7 @@ Applications that can store your personal details and list all the written users
 - codespell
 - pytest
 
-### Contributers
+### Contributors
     Charlie Haimov = 100
 ### Install
 
