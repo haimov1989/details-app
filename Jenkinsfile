@@ -15,19 +15,18 @@ pipeline {
                 '''
             }
         }
-        stage('Spellcheck') {
+        stage('Spellcheck and Codespell') {
             steps {
                 sh '''
                 export PATH="${POETRY_HOME}/bin:${PATH}"
-                poetry run python -m spellchecker -f $(find . -name "*.py" -o -name "*.txt" -o -name "*.md")
+                poetry run codespell $(find . -name "*.py" -o -name "*.txt" -o -name "*.md")
                 '''
             }
         }
-        stage('Codespell and Shellcheck') {
+        stage('Shellcheck') {
             steps {
                 sh '''
                 export PATH="${POETRY_HOME}/bin:${PATH}"
-                poetry run codespell $(find . -name "*.py")
                 poetry run shellcheck $(find . -name "*.sh")
                 '''
             }
